@@ -5,13 +5,22 @@ import (
 	"log"
 	"os/exec"
 	"runtime"
+	"sync/atomic"
 	"time"
 )
 
+var Paused atomic.Bool
+var Status string
+
 func countDown(totaltime int, message string) {
-	for i := 0; i < totaltime; i++ {
-		time.Sleep(1 * time.Minute)
-		fmt.Println(message+"		time left: ", totaltime-i)
+	for left := totaltime * 60; left > 0; {
+		Status = fmt.Sprintf("%s     time left: %02d:%02d (press p to pause)", message, left/60, left%60)
+		if Paused.Load() {
+			Status = fmt.Sprintf("%s     time left: %02d:%02d (press p to resume)", message, left/60, left%60)
+		} else {
+			left--
+		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
