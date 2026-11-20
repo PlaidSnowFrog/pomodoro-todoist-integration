@@ -16,6 +16,7 @@ func drawText(s tcell.Screen, x, y int, text string, style tcell.Style) {
 }
 
 func RenderTasks(tasks []todoist.Task) {
+	// Initialize ncurses
 	s, err := tcell.NewScreen()
 	if err != nil {
 		panic(err)
@@ -59,11 +60,13 @@ func RenderTasks(tasks []todoist.Task) {
 
 		s.Show()
 
+		// Get Possible inputs
 		switch ev := s.PollEvent().(type) {
-		case *tcell.EventResize:
+		case *tcell.EventResize: // Resize
 			s.Sync()
-		case *tcell.EventKey:
+		case *tcell.EventKey: // Keyboard Keys
 			switch {
+			// Vim motions/arrow keys
 			case ev.Key() == tcell.KeyCtrlC || ev.Rune() == 'q':
 				return
 			case ev.Key() == tcell.KeyUp || ev.Rune() == 'k':
@@ -74,11 +77,11 @@ func RenderTasks(tasks []todoist.Task) {
 				if cursor < len(tasks)-1 {
 					cursor++
 				}
-			case ev.Rune() == ' ':
+			case ev.Rune() == ' ': // space
 				if len(tasks) > 0 {
 					checked[cursor] = !checked[cursor]
 				}
-			case ev.Rune() == 'p':
+			case ev.Rune() == 'p': // pause
 				pomodoro.Paused.Store(!pomodoro.Paused.Load())
 			}
 		}
